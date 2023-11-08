@@ -15,22 +15,40 @@ for i,col in enumerate(color):
 
 plt.imshow(r)  # puts red image in the background
 display(plt)  #shows it
-ret,thresh1 = cv2.threshold(r,127,255,cv2.THRESH_BINARY)
+
+ret,thresh1 = cv2.threshold(r,127,255,cv2.THRESH_BINARY)#thresholds
 ret,thresh2 = cv2.threshold(b,127,255,cv2.THRESH_BINARY)
 ret,thresh3 = cv2.threshold(g,127,255,cv2.THRESH_BINARY)
 
 rav=np.sum(thresh1) #gets sum of colors
 print("here",rav)
-bav=np.sum(thresh2)
-print("here",bav)
 gav=np.sum(thresh3)
 print("here",gav)
-if gav > rav and bav:
+if gav > rav and bav: #bigger sum is what color it is
     print("this image is green")
 if rav > gav and bav:
     print('this image is red')
-if bav > gav and rav:
-    print('this image is blue')
+
+import requests
+table='Target'
+key='patNbmPRVD5NwBjfM.ed9074299f1c316ec699d00ec2b5c68627aa6551d3f87e854ef948999a5979d7'
+base_id='appJxCoavxuPBxWgI'
+token='patNbmPRVD5NwBjfM'
+print('7') #test point
+
+id='recQR58RLTPPYKyhb'
+headers = {"Authorization":'Bearer '+ key,"Content-Type":"application/json"}
+url = "https://api.airtable.com/v0/appJxCoavxuPBxWgI/Tasks/recQR58RLTPPYKyhb"
+data={'fields':{'Target':'Field 4'}}
+reply= requests.get(url, headers=headers)
+send= requests.post(url, headers=headers,json=val)
+
+print("4Code is", reply) #code
+r=reply.json()['fields'] #specify
+print('1here', r)
+name='Field 4'
+
+USERNAME = 'IsmaelD25'
 
 if reply.status_code == 200:
     reply = reply.json() #a JSON array of info
