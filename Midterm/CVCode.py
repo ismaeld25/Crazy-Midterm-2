@@ -1,64 +1,41 @@
-import cv2 as cv
-cv2_image = cv2.cvtColor(np.array(cam.raw_image), cv2.COLOR_RGB2BGR)
-b,g,r = cv2.split(cv2_image)
-grey = cv2.cvtColor(cv2_image, cv2.COLOR_BGRA2GRAY)
-cam.show(grey)  # shows any cv2 image in the same spot on the webpage (third image)
-image3 = Image.fromarray(grey)
-display(Image.fromarray(r),Image.fromarray(g),Image.fromarray(b))
-key='patNbmPRVD5NwBjfM.ed9074299f1c316ec699d00ec2b5c68627aa6551d3f87e854ef948999a5979d7'
-#cv.calcHist(images, channels, mask, histSize, ranges[, hist[, accumulate]])
-color = ('b','g','r')
-for i,col in enumerate(color):
-    histr = cv2.calcHist([cv2_image],[i],None,[256],[0,256])
-    plt.plot(histr,color = col)  # add the different histograms to the plot
-    plt.xlim([0,256])  # define x axis length (cuts off some of the picture)
+##color detection
+import cv2
+import time
+import numpy as np
+# Read the video
+cap = cv2.VideoCapture(0)
 
-plt.imshow(r)  # puts red image in the background
-display(plt)  #shows it
+# Read the first frame
+ret, frame = cap.read()
 
-ret,thresh1 = cv2.threshold(r,127,255,cv2.THRESH_BINARY)#thresholds
-ret,thresh2 = cv2.threshold(b,127,255,cv2.THRESH_BINARY)
-ret,thresh3 = cv2.threshold(g,127,255,cv2.THRESH_BINARY)
+#color detection
+def detection(frame):
+    global color
+    color=''
+    ret, frame = cap.read()
+    cv2.imshow('video',frame)
+    global cx, cy
+    b, g, r = cv2.split(frame)
+    cv2.imshow('frame', frame)
+    print('1')
+    ret,thresh1 = cv2.threshold(r,127,255,cv2.THRESH_BINARY)
+    ret,thresh2 = cv2.threshold(b,127,255,cv2.THRESH_BINARY)
+    ret,thresh3 = cv2.threshold(g,127,255,cv2.THRESH_BINARY)
 
-rav=np.sum(thresh1) #gets sum of colors
-print("here",rav)
-gav=np.sum(thresh3)
-print("here",gav)
-if gav > rav and bav: #bigger sum is what color it is
-    print("this image is green")
-if rav > gav and bav:
-    print('this image is red')
+    rav=np.sum(thresh1) #gets sum of colors
+    print("red values",rav)
+    gav=np.sum(thresh3)
+    print('green values',gav)
+    if rav>gav:
+        color ='Red'
+    if gav>rav:
+        color ='Green'
+    return color
 
-import requests
-table='Target'
-key='patNbmPRVD5NwBjfM.ed9074299f1c316ec699d00ec2b5c68627aa6551d3f87e854ef948999a5979d7'
-base_id='appJxCoavxuPBxWgI'
-token='patNbmPRVD5NwBjfM'
-print('7') #test point
-
-id='recQR58RLTPPYKyhb'
-headers = {"Authorization":'Bearer '+ key,"Content-Type":"application/json"}
-url = "https://api.airtable.com/v0/appJxCoavxuPBxWgI/Tasks/recQR58RLTPPYKyhb"
-data={'fields':{'Target':'Field 4'}}
-reply= requests.get(url, headers=headers)
-send= requests.post(url, headers=headers,json=val)
-
-print("4Code is", reply) #code
-r=reply.json()['fields'] #specify
-print('1here', r)
-name='Field 4'
-
-USERNAME = 'IsmaelD25'
-
-if reply.status_code == 200:
-    reply = reply.json() #a JSON array of info
-    keys = [x['key'] for x in reply]
-    groups = [x['group']['name'] for x in reply]
-    names = [x['name'] for x in reply]
-    values = [x['last_value'] for x in reply]
-    GROUP = 'midterm'
-    if unit == 'green':
-        FEED_KEY = 'thermal-reads'
-    if unit == 'red':
-        FEED_KEY = 'thermal-reads-celsius'
-    url = 'https://io.adafruit.com/api/v2/%s/feeds/%s.%s/data' % (USERNAME, GROUP, FEED_KEY)
+while True:
+    detection(frame)
+    print(color)
+    if cv2.waitKey(1) == ord('q'): # Exit if the 'q' key is pressed
+        break
+cap.release() # Release the camera
+cv2.destroyAllWindows() # Close all windows
